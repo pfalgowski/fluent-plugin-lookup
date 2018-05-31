@@ -85,7 +85,7 @@ module Fluent
       es.each { |time, record|
         t = tag.dup
         filter_record(t, time, record)
-        Engine.emit(t, time, record)
+        router.emit(t, time, record)
       }
 
       chain.next
@@ -98,7 +98,7 @@ module Fluent
     end
 
     def assign(record, key, value)
-      record[key] = process(value) || value
+      record[key] = lookup(value) || value
     end
 
     def return(record, key, value_nouse) 
@@ -106,7 +106,7 @@ module Fluent
     end
 
     def rename(record, key, value_nouse)
-      new_key = process(key) || return
+      new_key = lookup(key) || return
       field_value = record[key]
       record.delete(key)
       record[new_key] = field_value
@@ -157,7 +157,7 @@ module Fluent
       return nil
     end
 
-    def process(value)
+    def lookup(value)
       return @lookup_table[value]
     end
 
